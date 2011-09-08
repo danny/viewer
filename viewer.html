@@ -1,0 +1,247 @@
+<html lang="en"> 
+	<head> 
+		<title>Viewer</title> 
+		<style type="text/css"> 
+			body {
+				font-family: Monospace;
+				font-size: 12px;
+				background-color: #f5f5f5;
+				margin: 0px;
+				overflow: hidden;
+			}
+		</style> 
+
+    <link rel='stylesheet' type='text/css' href='css/turtle_commands.css' /> 
+		<script type='text/javascript' src='js/lib/Three.js'></script> 
+		<script type='text/javascript' src='js/lib/Stats.js'></script>
+		<script type='text/javascript' src='js/lib/THREEx.WindowResize.js'></script>
+		<script type='text/javascript' src='js/lib/DAT.GUI.min.js'></script>
+    <script type='text/javascript' src='js/lib/RequestAnimationFrame.js'></script> 
+		<script type='text/javascript' src='js/lib/jquery-1.6.2.js'></script>
+		<script type='text/javascript' src='js/SphericalPoint.js'></script>
+		<script type='text/javascript' src='js/MouseCamera.js'></script>	
+		<script type='text/javascript' src='js/Turtle.js'></script>
+	
+	</head> 
+	<body> 
+      <div id="turtleCommandArea">
+        <div class="section">
+          <h3>Turtle Commands</h3>
+        </div>
+        <textarea>
+for (var i = 0; i < 1000; i++){
+turtle.turnRight (1);
+turtle.turnUp (10);
+turtle.forward (10);	
+}
+        </textarea>
+        <button>Execute</button>
+        </div>
+      </div>      
+
+    <script>
+      var turtleCommandArea = $('#turtleCommandArea');
+      var up = false;
+      
+      $('#turtleCommandArea h3').click (function () {
+        var anim = {mb:0, pt:0}; //margin bottom
+
+        if (up)
+          anim = {mb: -321, pt:0 }
+      
+        turtleCommandArea.stop().animate({marginBottom:anim.mb});
+        turtleCommandArea.find ('.section').stop().animate({paddingTop:anim.pt}, function () {
+          up = !up;
+        });  
+      });
+
+      $('#turtleCommandArea button').click(function() {
+        eval($('#turtleCommandArea textarea').val());  
+      });
+    </script>
+
+
+
+		<script>
+			var mc, stats, scene, turtle; 
+			$(document).ready (function () {
+
+				mc = setup();
+        mc.addGrid ();
+				var statToggle = setupStats();
+				setupGUI (mc, statToggle);
+				animate ();
+
+			});	
+
+			function setupStats ()
+			{
+				stats = new Stats();
+
+				// Align top-left
+				stats.domElement.style.position = 'absolute';
+				stats.domElement.style.left = '0px';
+				stats.domElement.style.top = '0px';
+				stats.domElement.style.zIndex = 1000;
+				document.body.appendChild( stats.domElement );
+				return {test: function () { $(stats.domElement).toggle(); } }	
+			}
+
+			function setupGUI (mc, statToggle)
+			{
+				var gui = new DAT.GUI ({
+					height : 10 * 32 -1
+				});
+
+				gui.add(statToggle, 'test').name ('Toggle StatView');			
+				gui.add(mc, 'theta').min(-360).max(720).step(1).listen().onChange(mc.update);
+				gui.add(mc, 'phi').min(0).max(180).step(1).listen().onChange(mc.update);
+				gui.add(mc, 'radius').min(400).max(8000).step(1).listen().onChange(mc.update);
+				gui.add(mc, 'rotationEnabled').name('rotate').listen();
+				gui.add(mc, 'rotationSpeed').min(0.1).max(3).step(0.1).listen();
+        gui.add(mc, 'toggleTargetSphere').name('Toggle Target Sphere');
+        gui.add(mc, 'toggleGrid').name('Toggle Grid');
+				gui.add(mc, 'topView').name('Top View');
+				gui.add(mc, 'mainView').name('Main View');
+			}
+		
+			function addCube (scene) {
+				for (var i = 0; i < 1000; i++) {
+					var cube = new THREE.Mesh( new THREE.CubeGeometry( 50, 50, 50 ),[ 
+						new THREE.MeshBasicMaterial( { color: Math.random() * 0xffffff, opacity: 0.4, transparent: true }),
+						new THREE.MeshBasicMaterial( { color: 0xffffff, opacity: 0.5, wireframe: true} ) ]);
+
+					cube.position.z = Math.floor(Math.random()* 1000) - 500; 
+					cube.position.y = Math.floor(Math.random()* 400) +25;
+					cube.position.x = Math.floor(Math.random()* 1000) - 500; 
+					scene.addObject( cube );	
+				}
+			}
+
+			function addSphere (scene) {
+				//	var new 
+			}		
+
+			function addShape (scene) {
+				var material = new THREE.LineBasicMaterial( { color: 0xff0000, opacity: 1 } );	
+				var g2 = new THREE.Geometry();	
+			
+				for (var i = 0 ; i < 100; i++) {
+					g2.vertices.push ( new THREE.Vertex (new THREE.Vector3 (Math.floor(Math.random()* 1000) - 500,
+						Math.floor(Math.random()* 400) ,
+						Math.floor(Math.random()* 1000) - 500)));
+				}
+				
+				var l2 = new THREE.Line( g2, material );
+				scene.addChild (l2)
+			}
+
+
+			function addUnitCircle (scene) {
+				var circleRadius = 50;
+				var circleShape = new THREE.Shape();
+				circleShape.moveTo (0, circleRadius);
+				circleShape.quadraticCurveTo (circleRadius, circleRadius, circleRadius, 0);
+				circleShape.quadraticCurveTo( circleRadius, -circleRadius, 0, -circleRadius );
+				circleShape.quadraticCurveTo( -circleRadius, -circleRadius, -circleRadius, 0 );
+				circleShape.quadraticCurveTo( -circleRadius, circleRadius, 0, circleRadius );
+ 
+				var circlePoints = circleShape.createPointsGeometry();
+
+				// solid line
+				var line = new THREE.Line( circlePoints, new THREE.LineBasicMaterial( { color: 0x0000FF, linewidth: 2 } ) );
+				scene.addChild( line );
+				
+				
+			}
+
+			function setup() {
+ 
+				var container = document.createElement( 'div' );
+				document.body.appendChild( container );
+ 
+				scene = new THREE.Scene();
+
+
+				//addBackgroundGrid2 (scene, 100, 50, 0);
+				//addBackgroundGrid (scene, 10, 50);
+				//addCube (scene);
+			//	addShape(scene);
+			//	addUnitCircle(scene);
+	
+				turtle = new Turtle (scene);
+				turtle.drawTurtle();
+
+				
+ 
+				// Lights
+				var ambientLight = new THREE.AmbientLight( 0x404040 );
+				scene.addLight( ambientLight );
+ 
+				var renderer = new THREE.WebGLRenderer({antialias:true});
+				renderer.setSize( window.innerWidth, window.innerHeight );
+ 
+				container.appendChild(renderer.domElement);
+				
+				mc = new MouseCamera (scene, renderer);
+				mc.addMouseListeners ();
+
+				THREEx.WindowResize(renderer, mc.camera); //set resize
+				return mc;
+			}
+
+    
+			function addBackgroundGrid (scene, num, width) {
+
+				var offset = (num * width)/2;
+
+				// Grid
+				var geometry = new THREE.Geometry();
+				geometry.vertices.push( new THREE.Vertex( new THREE.Vector3( - offset, 0, 0 ) ) );
+				geometry.vertices.push( new THREE.Vertex( new THREE.Vector3( offset, 0, 0 ) ) );
+ 
+				var linesMaterial = new THREE.LineBasicMaterial({color: 0xa0a0a0} );
+ 
+				for ( var i = 0; i <= num; i ++ ) {
+ 
+					var line = new THREE.Line( geometry, linesMaterial );
+					line.position.z = ( i * width ) - offset;
+					scene.addObject( line );
+ 
+					var line = new THREE.Line( geometry, linesMaterial );
+					line.position.x = ( i * width ) - offset;
+					line.rotation.y = 90 * Math.PI / 180;
+					scene.addObject( line );
+ 
+				}
+			} 
+
+			
+
+			var i = 0;
+			function animate() {
+ 
+				requestAnimationFrame( animate );
+				
+				mc.rotate();
+				mc.render();
+				stats.update();
+			//	turtleDemo (i++);
+ 
+			}
+
+		
+	
+			function turtleDemo (i) {
+				if (i% 2!= 0 || i > 1000)
+					return
+
+					turtle.turnRight (1);
+					turtle.turnUp (10);
+					turtle.forward (10);	
+			}
+
+		</script> 
+     
+	</body> 
+</html> 

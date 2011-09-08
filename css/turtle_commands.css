@@ -1,0 +1,48 @@
+#turtleCommandArea {
+  background-color:#222222;
+height:330px;
+position:fixed;
+bottom:0;
+width:90%;
+left:5%;
+color:white;
+      margin-top:0px;
+      margin-bottom:-322px; /* for hiding */
+      z-index:10;
+display:block;
+        text-align:center;
+}
+
+#turtleCommandArea h3 {
+  margin-top:-10px;
+  text-align: center; 
+  background-color:#333333;
+cursor:pointer;
+}
+
+#turtleCommandArea .section {
+  padding-top:0px;
+  /*padding:20px;*/
+}
+
+#turtleCommandArea textarea {
+width:90%;
+height:296px;
+}
+
+#turtleCommandArea button {
+  padding: 6px 10px;
+  -webkit-border-radius: 2px 2px;
+  border: solid 1px rgb(153, 153, 153);
+  background: -webkit-gradient(linear, 0% 0%, 0% 100%, from(rgb(255, 255, 255)), to(rgb(221, 221, 221)));
+  color: #333;
+  text-decoration: none;
+  cursor: pointer;
+  display: inline-block;
+  text-align: center;
+  text-shadow: 0px 1px 1px rgba(255,255,255,1);
+  line-height: 1;
+}
+
+
+
