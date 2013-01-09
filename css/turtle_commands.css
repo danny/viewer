@@ -1,23 +1,23 @@
 #turtleCommandArea {
   background-color:#222222;
-height:330px;
-position:fixed;
-bottom:0;
-width:90%;
-left:5%;
-color:white;
-      margin-top:0px;
-      margin-bottom:-322px; /* for hiding */
-      z-index:10;
-display:block;
-        text-align:center;
+  height:330px;
+  position:fixed;
+  bottom:0;
+  width:90%;
+  left:5%;
+  color:white;
+  margin-top:0px;
+  margin-bottom:-322px; /* for hiding */
+  z-index:10;
+  display:block;
+  text-align:center;
 }
 
 #turtleCommandArea h3 {
   margin-top:-10px;
-  text-align: center; 
+  text-align: center;
   background-color:#333333;
-cursor:pointer;
+  cursor:pointer;
 }
 
 #turtleCommandArea .section {
@@ -26,8 +26,8 @@ cursor:pointer;
 }
 
 #turtleCommandArea textarea {
-width:90%;
-height:296px;
+  width:90%;
+  height:296px;
 }
 
 #turtleCommandArea button {
